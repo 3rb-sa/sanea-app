@@ -1,0 +1,107 @@
+workflows:
+  ios-capacitor-release:
+    name: Sanea iOS (Capacitor) - App Store
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: sanea-app # must match the key name you create under Codemagic > Settings > Integrations > Developer Portal
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.sanea.app
+      vars:
+        BUNDLE_ID: "com.sanea.app" # must match capacitor.config.ts appId and the App ID you register in Apple Developer
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
+        APP_STORE_APPLE_ID: 0 # replace with the numeric Apple ID Store Connect assigns once you create the app there
+      node: latest
+      xcode: latest
+
+    scripts:
+      - name: Install npm dependencies
+        script: npm ci
+
+      - name: Sync Capacitor iOS project
+        script: npx cap sync ios
+
+      - name: Set up keychain
+        script: keychain initialize
+
+      - name: Add certificates to keychain
+        script: keychain add-certificates
+
+      - name: Apply signing profiles to Xcode project
+        script: xcode-project use-profiles
+
+      - name: Increment build number
+        script: |
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo 0)
+          NEW_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
+          echo "Latest TestFlight build number: $LATEST_BUILD_NUMBER -> using: $NEW_BUILD_NUMBER"
+          cd ios/App && agvtool new-version -all "$NEW_BUILD_NUMBER"
+
+      - name: Build .ipa
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # Flip to true once you're ready to send a build straight to App Review
+        # (you can also just do this manually from App Store Connect after TestFlight looks good)
+        submit_to_app_store: false
+
+  android-capacitor-release:
+    name: Sanea Android (Capacitor) - Play Store
+    max_build_duration: 60
+    environment:
+      android_signing:
+        - sanea-app-keystore # must match the keystore reference name you create under Codemagic > Settings > Code signing identities > Android keystores
+      vars:
+        PACKAGE_NAME: "com.sanea.app" # must match android/app/build.gradle applicationId and the package name registered in Play Console -- change this (like Hayyi's sa.hayyi.app) only if com.sanea.app turns out to already be taken there
+      node: latest
+      java: 21
+
+    scripts:
+      - name: Install npm dependencies
+        script: npm ci
+
+      - name: Sync Capacitor Android project
+        script: npx cap sync android
+
+      - name: Set Android build (version) code from the current timestamp
+        script: |
+          # Seconds since 2024-01-01 (not the raw epoch) -- Play Console warns
+          # when versionCode is needlessly close to the int32 ceiling (~2.1
+          # billion), and the raw epoch is already >80% of the way there. This
+          # offset buys ~60 more years before it's a concern, while still
+          # increasing by 1 every second so every build gets a unique,
+          # monotonically increasing code.
+          BUILD_NUMBER=$(( $(date +%s) - 1704067200 ))
+          cd android && sed -i.bak "s/versionCode .*/versionCode $BUILD_NUMBER/" app/build.gradle && rm -f app/build.gradle.bak
+
+      - name: Build signed .aab
+        script: |
+          cd android && chmod +x ./gradlew && ./gradlew bundleRelease
+
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+      - android/app/build/outputs/**/mapping.txt
+
+    # Automated Play Store publishing is intentionally not configured yet --
+    # download the .aab from the build artifacts above and upload it manually
+    # in Play Console's Closed testing track. To automate later: set up a
+    # Google Cloud service account with Play Console API access, add its JSON
+    # key as GCLOUD_SERVICE_ACCOUNT_CREDENTIALS in a Codemagic "google_play"
+    # environment variable group, then add back:
+    # publishing:
+    #   google_play:
+    #     credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+    #     track: alpha
