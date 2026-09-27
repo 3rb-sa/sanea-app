@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme {
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+
+  --color-bg: oklch(98.5% 0.005 250);
+  --color-surface: oklch(100% 0 0);
+  --color-surface-2: oklch(96% 0.012 245);
+  --color-text: oklch(19% 0.015 250);
+  --color-text-soft: oklch(42% 0.02 250);
+  --color-text-faint: oklch(60% 0.015 250);
+  --color-border: oklch(89% 0.012 245);
+  --color-accent: oklch(48% 0.16 255);
+  --color-accent-dark: oklch(36% 0.14 255);
+  --color-accent-soft: oklch(93% 0.03 255);
+  --color-warn: oklch(62% 0.18 45);
+  --color-warn-soft: oklch(94% 0.05 50);
+  --color-whatsapp: oklch(64% 0.19 149);
+  --color-whatsapp-text: oklch(38% 0.12 150);
+  --color-whatsapp-soft: oklch(93% 0.05 150);
+  --color-success: oklch(45% 0.13 152);
+  --color-success-soft: oklch(93% 0.035 152);
+}
+
+@layer base {
+  html,
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  body {
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    text-wrap: balance;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .overflow-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  button,
+  a {
+    transition:
+      transform 150ms ease,
+      filter 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease,
+      opacity 150ms ease;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  @media (hover: hover) {
+    button:not(:disabled):hover,
+    a:hover {
+      filter: brightness(0.96);
+    }
+  }
+
+  button:not(:disabled):active,
+  a:active {
+    transform: scale(0.97);
+    filter: brightness(0.94);
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 2px solid oklch(48% 0.16 255 / 0.55);
+    outline-offset: 2px;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+@layer components {
+  .field {
+    width: 100%;
+    border: 1.5px solid var(--color-border);
+    border-radius: 13px;
+    padding: 12px 13px;
+    font-size: 13.5px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    outline: none;
+  }
+
+  .field::placeholder {
+    color: var(--color-text-faint);
+  }
+}
