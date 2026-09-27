@@ -1,4 +1,4 @@
-package com.sanea.app;
+package com.san3.app;
 
 import com.getcapacitor.BridgeActivity;
 

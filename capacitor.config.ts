@@ -4,7 +4,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 // - appId must match the Bundle Identifier you register in App Store Connect.
 // - server.url must point at the live deployed app (Vercel URL or your own domain).
 const config: CapacitorConfig = {
-  appId: "com.sanea.app",
+  appId: "com.san3.app",
   appName: "سنع",
   webDir: "public",
   server: {

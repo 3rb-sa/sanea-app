@@ -1,16 +1,16 @@
 workflows:
   ios-capacitor-release:
-    name: Sanea iOS (Capacitor) - App Store
+    name: SAN3 iOS (Capacitor) - App Store
     max_build_duration: 60
     instance_type: mac_mini_m2
     integrations:
-      app_store_connect: sanea-app # must match the key name you create under Codemagic > Settings > Integrations > Developer Portal
+      app_store_connect: san3-app # must match the key name you create under Codemagic > Settings > Integrations > Developer Portal
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.sanea.app
+        bundle_identifier: com.san3.app
       vars:
-        BUNDLE_ID: "com.sanea.app" # must match capacitor.config.ts appId and the App ID you register in Apple Developer
+        BUNDLE_ID: "com.san3.app" # must match capacitor.config.ts appId and the App ID you register in Apple Developer
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         APP_STORE_APPLE_ID: 0 # replace with the numeric Apple ID Store Connect assigns once you create the app there
@@ -59,13 +59,13 @@ workflows:
         submit_to_app_store: false
 
   android-capacitor-release:
-    name: Sanea Android (Capacitor) - Play Store
+    name: SAN3 Android (Capacitor) - Play Store
     max_build_duration: 60
     environment:
       android_signing:
-        - sanea-app-keystore # must match the keystore reference name you create under Codemagic > Settings > Code signing identities > Android keystores
+        - san3-app-keystore # must match the keystore reference name you create under Codemagic > Settings > Code signing identities > Android keystores
       vars:
-        PACKAGE_NAME: "com.sanea.app" # must match android/app/build.gradle applicationId and the package name registered in Play Console -- change this (like Hayyi's sa.hayyi.app) only if com.sanea.app turns out to already be taken there
+        PACKAGE_NAME: "com.san3.app" # must match android/app/build.gradle applicationId and the package name registered in Play Console -- change this (like Hayyi's sa.hayyi.app) only if com.san3.app turns out to already be taken there
       node: latest
       java: 21
 
