@@ -13,7 +13,7 @@ workflows:
         BUNDLE_ID: "com.san3.app" # must match capacitor.config.ts appId and the App ID you register in Apple Developer
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-        APP_STORE_APPLE_ID: 0 # replace with the numeric Apple ID Store Connect assigns once you create the app there
+        APP_STORE_APPLE_ID: 6816619488
       node: latest
       xcode: latest
 
